@@ -20,17 +20,9 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-<<<<<<< HEAD
 As a Salesforce admin I want to synchronize accounts from Salesforce to Database.
-=======
-As a Salesforce admin I want to syncronize accountss from Salesfoce to Database.
->>>>>>> branch 'master' of https://github.com/mulesoft/template-sfdc2db-account-migration.git
 
-<<<<<<< HEAD
 This Template should serve as a foundation for the process of migrating accounts from Salesforce instance to Database, being able to specify filtering criteria and desired behavior when an account already exists in the destination org. 
-=======
-This Template should serve as a foundation for the process of migrating accounts from Salesfoce instance to Database, being able to specify filtering criteria and desired behavior when an account already exists in the destination org. 
->>>>>>> branch 'master' of https://github.com/mulesoft/template-sfdc2db-account-migration.git
 
 As implemented, this Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
 The batch job is divided in Input, Process and On Complete stages.
