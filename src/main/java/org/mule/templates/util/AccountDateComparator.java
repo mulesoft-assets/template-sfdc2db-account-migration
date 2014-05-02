@@ -9,9 +9,9 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 /**
- * The function of this class is to establish a relation happens before between two maps representing SFDC accounts.
+ * The function of this class is to establish a relation happens before between two maps - first representing DB and second SFDC account.
  * 
- * It's assumed that these maps are well formed maps from SFDC thus they both contain an entry with the expected key. Never the less validations are being done.
+ * It's assumed that these maps are well formed maps thus they both contain an entry with the expected key. Never the less validations are being done.
  * 
  * @author cesargarcia
  * @author martin.zdila
@@ -23,7 +23,7 @@ public class AccountDateComparator {
 	 * Validate which account has the latest last referenced date.
 	 * 
 	 * @param accountA
-	 *            SFDC account map
+	 *            DB account map
 	 * @param accountB
 	 *            SFDC account map
 	 * @return true if the last activity date from accountA is after the one from accountB
