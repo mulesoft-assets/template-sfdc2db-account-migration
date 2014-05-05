@@ -38,7 +38,7 @@ Simple steps to get SFDC to DB Accounts Migration running.
 **Note:** This particular Anypoint Template illustrate the migration use case between SalesForce and a Database, thus it requires a DB instance to work.
 The Anypoint Template comes packaged with a SQL script to create the DB table that uses. 
 It is the user responsability to use that script to create the table in an available schema and change the configuration accordingly.
-The SQL script file can be found in [src/main/resources/sfdc2jdbc.sql] (../master/src/main/resources/account.sql)
+The SQL script file can be found in [src/main/resources/account.sql] (../master/src/main/resources/account.sql)
 
 In any of the ways you would like to run this Template this is an example of the output you'll see after hitting the HTTP endpoint:
 
