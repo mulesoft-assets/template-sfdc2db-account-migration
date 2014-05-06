@@ -1,10 +1,10 @@
 package org.mule.templates.util;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
@@ -29,18 +29,24 @@ public class AccountDateComparator {
 	 * @return true if the last activity date from accountA is after the one from accountB
 	 */
 	public static boolean isAfter(Map<String, ?> accountA, Map<String, ?> accountB) {
-		Validate.notNull(accountA, "The account A should not be null");
-		Validate.notNull(accountB, "The account B should not be null");
-
-		Validate.isTrue(accountA.containsKey(LAST_MODIFIED_DATE), "The account A map should containt the key " + LAST_MODIFIED_DATE);
+		Validate.notNull(accountA, "The account A must not be null");
+		Validate.notNull(accountB, "The account B must not be null");
+		
+		Validate.isTrue(accountA.containsKey(LAST_MODIFIED_DATE), "The account A map must contain the key " + LAST_MODIFIED_DATE);
 
 		if (accountB.get(LAST_MODIFIED_DATE) == null) {
 			return true;
 		}
 		
 		DateTimeFormatter formatter = ISODateTimeFormat.dateTimeParser();
-		DateTime LastModifiedDateOfA = formatter.parseDateTime((String) accountA.get(LAST_MODIFIED_DATE));
-		DateTime LastModifiedDateOfB = new DateTime(accountB.get(LAST_MODIFIED_DATE));
+		Object objectA = accountA.get(LAST_MODIFIED_DATE);
+		Validate.isTrue(objectA instanceof String, "LastModifiedDate of account A must be String");
+		DateTime LastModifiedDateOfA = formatter.parseDateTime((String) objectA);
+
+		Object objectB = accountB.get(LAST_MODIFIED_DATE);
+		Validate.isTrue(objectB instanceof Date, "LastModifiedDate of account B must be java.util.Date or subclass");
+		DateTime LastModifiedDateOfB = new DateTime((Date) objectB);
+		
 		return LastModifiedDateOfA.isAfter(LastModifiedDateOfB);
 	}
 }
