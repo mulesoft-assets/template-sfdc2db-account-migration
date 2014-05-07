@@ -151,7 +151,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	#[payload['Site']],
 	#[payload['TickerSymbol']],
 	#[payload['Type']],
-	#[payload['Webdite']]
+	#[payload['Website']]
 )]]></db:parameterized-query>
                     </db:insert>
                 </batch:commit>
