@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:core="http://www.mulesoft.org/schema/mule/core" 
+<mule xmlns:data-mapper="http://www.mulesoft.org/schema/mule/ee/data-mapper" xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:core="http://www.mulesoft.org/schema/mule/core" 
 xmlns:http="http://www.mulesoft.org/schema/mule/http" 
 xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" 
 xmlns="http://www.mulesoft.org/schema/mule/core" 
@@ -20,7 +20,9 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/sfdc http://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
 http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schema/mule/ee/data-mapper/current/mule-data-mapper.xsd">
+    <data-mapper:config name="Account_To_Account" transformationGraphPath="account_to_account.grf" doc:name="Account_To_Account"/>
 
  <batch:job name="migrateAccountsBatch">
         <batch:threading-profile poolExhaustedAction="WAIT"/>
@@ -32,6 +34,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
                 <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[recordVars['accountInB']]" doc:name="store result in record var 'accountInB'">
                     <db:select config-ref="Database" doc:name="query Account from Database">
                         <db:parameterized-query><![CDATA[SELECT Id, Name, LastModifiedDate FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
                     </db:select>
                 </enricher>
             </batch:step>
@@ -46,6 +49,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
                 </choice>
             </batch:step>
             <batch:step name="cleanupAccounts" filter-expression="#[payload is NullPayload]">
+                <data-mapper:transform config-ref="Account_To_Account" doc:name="Salesforce Account To Database Account"/>
                 <expression-component doc:name="remove field LastModifiedDate"><![CDATA[payload.remove('LastModifiedDate');]]></expression-component>
                 <expression-component doc:name="changing type of field NumberOfEmployees to int"><![CDATA[if (payload.get('NumberOfEmployees') == null) {
 	payload.remove('NumberOfEmployees') 
