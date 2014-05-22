@@ -35,7 +35,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
                     </db:select>
                 </enricher>
             </batch:step>
-            <batch:step name="selectNewerAccountStep" filter-expression="#[recordVars['accountInB'] is NullPayload]">
+            <batch:step name="selectNewerAccountStep" accept-expression="!(recordVars['accountInB'] is NullPayload)">
                 <choice doc:name="Choice">
                     <when expression="#[org.mule.templates.util.AccountDateComparator.isAfter(payload, recordVars['accountInB'])]">
                         <expression-component doc:name="define Id in SalesForce Intance B"><![CDATA[payload['Id'] = recordVars['accountInB']['Id']]]></expression-component>
@@ -45,7 +45,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
                     </otherwise>
                 </choice>
             </batch:step>
-            <batch:step name="cleanupAccounts" filter-expression="#[payload is NullPayload]">
+            <batch:step name="cleanupAccounts" accept-expression="!(payload is NullPayload)">
                 <expression-component doc:name="remove field LastModifiedDate"><![CDATA[payload.remove('LastModifiedDate');]]></expression-component>
                 <expression-component doc:name="changing type of field NumberOfEmployees to int"><![CDATA[if (payload.get('NumberOfEmployees') == null) {
 	payload.remove('NumberOfEmployees') 
@@ -54,7 +54,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 	payload.put('NumberOfEmployees', intNumberOfEmployees);
 }]]></expression-component>
             </batch:step>
-            <batch:step name="updateAccountsInBStep" filter-expression="#[payload is NullPayload || recordVars['accountInB'] is NullPayload]">
+            <batch:step name="updateAccountsInBStep" accept-expression="!(payload is NullPayload) &amp;&amp; !(recordVars['accountInB'] is NullPayload)">
                 <batch:commit size="200" doc:name="Batch Commit">
                     <db:update config-ref="Database" bulkMode="true" doc:name="update accunts in Database">
                         <db:parameterized-query><![CDATA[UPDATE Account SET
@@ -89,7 +89,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                     </db:update>
                 </batch:commit>
             </batch:step>
-            <batch:step name="insertAccountsToBStep" filter-expression="#[payload is NullPayload || !(recordVars['accountInB'] is NullPayload)]">
+            <batch:step name="insertAccountsToBStep" accept-expression="!(payload is NullPayload) &amp;&amp; recordVars['accountInB'] is NullPayload">
                 <batch:commit size="200" doc:name="Batch Commit">
                     <db:insert config-ref="Database" bulkMode="true" doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
