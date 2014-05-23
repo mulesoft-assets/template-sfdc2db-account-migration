@@ -12,8 +12,7 @@ import org.junit.Test;
 
 /**
  * 
- * @author unknown
- * @author MartinZdila
+ * @author Martin Ždila
  *
  */
 public class AccountDateComparatorTest {
@@ -26,78 +25,83 @@ public class AccountDateComparatorTest {
 
 	private static final DateTimeFormatter ISO_DATE_FORMATTER = ISODateTimeFormat.dateTimeParser();
 
-	private static final Timestamp TEST_DATETIME_TIMESTAMP = new Timestamp(ISO_DATE_FORMATTER.parseDateTime(TEST_DATETIME_STRING).toDate().getTime());
+	private static final Timestamp TEST_DATETIME_TIMESTAMP
+			= new Timestamp(ISO_DATE_FORMATTER.parseDateTime(TEST_DATETIME_STRING).toDate().getTime());
 
 	@Test(expected = IllegalArgumentException.class)
-	public void nullAccountA() {
-		Map<String, Object> accountA = null;
+	public void nullsalesforceAccount() {
+		Map<String, Object> salesforceAccount = null;
 
-		Map<String, Object> accountB = new HashMap<String, Object>();
-		accountB.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
+		Map<String, Object> databaseAccount = new HashMap<String, Object>();
+		databaseAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
 
-		AccountDateComparator.isAfter(accountA, accountB);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void nullAccountB() {
-		Map<String, Object> accountA = new HashMap<String, Object>();
-		accountA.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
-
-		Map<String, Object> accountB = null;
-
-		AccountDateComparator.isAfter(accountA, accountB);
+		AccountDateComparator.isAfter(salesforceAccount, databaseAccount);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
-	public void malFormedAccountA() {
-		Map<String, Object> accountA = new HashMap<String, Object>();
+	public void nulldatabaseAccount() {
+		Map<String, Object> salesforceAccount = new HashMap<String, Object>();
+		salesforceAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
 
-		Map<String, Object> accountB = new HashMap<String, Object>();
-		accountB.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
+		Map<String, Object> databaseAccount = null;
 
-		AccountDateComparator.isAfter(accountA, accountB);
+		AccountDateComparator.isAfter(salesforceAccount, databaseAccount);
 	}
 
-	public void emptyAccountB() {
-		Map<String, Object> accountA = new HashMap<String, Object>();
-		accountA.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
+	@Test(expected = IllegalArgumentException.class)
+	public void malFormedsalesforceAccount() {
+		Map<String, Object> salesforceAccount = new HashMap<String, Object>();
 
-		Map<String, Object> accountB = new HashMap<String, Object>();
+		Map<String, Object> databaseAccount = new HashMap<String, Object>();
+		databaseAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
 
-		Assert.assertTrue("The account A should be after the account B", AccountDateComparator.isAfter(accountA, accountB));
+		AccountDateComparator.isAfter(salesforceAccount, databaseAccount);
 	}
 
-	@Test
-	public void accountAIsAfterAccountB() {
-		Map<String, Object> accountA = new HashMap<String, Object>();
-		accountA.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING2);
+	public void emptydatabaseAccount() {
+		Map<String, Object> salesforceAccount = new HashMap<String, Object>();
+		salesforceAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
 
-		Map<String, Object> accountB = new HashMap<String, Object>();
-		accountB.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
+		Map<String, Object> databaseAccount = new HashMap<String, Object>();
 
-		Assert.assertTrue("The account A should be after the account B", AccountDateComparator.isAfter(accountA, accountB));
-	}
-
-	@Test
-	public void accountAIsNotAfterAccountB() {
-		Map<String, Object> accountA = new HashMap<String, Object>();
-		accountA.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
-
-		Map<String, Object> accountB = new HashMap<String, Object>();
-		accountB.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
-
-		Assert.assertFalse("The account A should not be after the account B", AccountDateComparator.isAfter(accountA, accountB));
+		Assert.assertTrue("The Salesforce account should be after the Database account",
+				AccountDateComparator.isAfter(salesforceAccount, databaseAccount));
 	}
 
 	@Test
-	public void accountAIsTheSameThatAccountB() {
-		Map<String, Object> accountA = new HashMap<String, Object>();
-		accountA.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
+	public void salesforceAccountIsAfterdatabaseAccount() {
+		Map<String, Object> salesforceAccount = new HashMap<String, Object>();
+		salesforceAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING2);
 
-		Map<String, Object> accountB = new HashMap<String, Object>();
-		accountB.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
+		Map<String, Object> databaseAccount = new HashMap<String, Object>();
+		databaseAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
 
-		Assert.assertFalse("The account A should not be after the account B", AccountDateComparator.isAfter(accountA, accountB));
+		Assert.assertTrue("The Salesforce account should be after the Database account",
+				AccountDateComparator.isAfter(salesforceAccount, databaseAccount));
+	}
+
+	@Test
+	public void salesforceAccountIsNotAfterdatabaseAccount() {
+		Map<String, Object> salesforceAccount = new HashMap<String, Object>();
+		salesforceAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
+
+		Map<String, Object> databaseAccount = new HashMap<String, Object>();
+		databaseAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
+
+		Assert.assertFalse("The Salesforce account should not be after the Database account",
+				AccountDateComparator.isAfter(salesforceAccount, databaseAccount));
+	}
+
+	@Test
+	public void salesforceAccountIsTheSameThatdatabaseAccount() {
+		Map<String, Object> salesforceAccount = new HashMap<String, Object>();
+		salesforceAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_STRING);
+
+		Map<String, Object> databaseAccount = new HashMap<String, Object>();
+		databaseAccount.put(KEY_LAST_MODIFIED_DATE, TEST_DATETIME_TIMESTAMP);
+
+		Assert.assertFalse("The Salesforce account should not be after the Database account",
+				AccountDateComparator.isAfter(salesforceAccount, databaseAccount));
 	}
 
 }
