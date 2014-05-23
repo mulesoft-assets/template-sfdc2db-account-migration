@@ -30,18 +30,18 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
             <sfdc:query config-ref="Salesforce" query="dsql:SELECT AccountNumber, AccountSource, AnnualRevenue, BillingCity, BillingCountry, BillingPostalCode, BillingState, BillingStreet, Description, Fax, Industry, LastModifiedDate, Name, NumberOfEmployees, OwnerId, Ownership, ParentId, Phone, Rating, ShippingCity, ShippingCountry, ShippingPostalCode, ShippingState, ShippingStreet, Sic, SicDesc, Site, TickerSymbol, Type, Website FROM Account WHERE NumberOfEmployees &gt; 5000 AND (Industry = 'Education' OR Industry = 'Government')" fetchSize="${page.size}" doc:name="Accounts from Salesforce instance"/>
         </batch:input> 
         <batch:process-records>
-            <batch:step name="getAccountInBStep">
-                <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[recordVars['accountInB']]" doc:name="store result in record var 'accountInB'">
+            <batch:step name="getAccountInDatabaseStep">
+                <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[recordVars['accountInDatabase']]" doc:name="store result in record var 'accountInDatabase'">
                     <db:select config-ref="Database" doc:name="query Account from Database">
                         <db:parameterized-query><![CDATA[SELECT Id, Name, LastModifiedDate FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
                     </db:select>
                 </enricher>
             </batch:step>
-            <batch:step name="selectNewerAccountStep" accept-expression="!(recordVars['accountInB'] is NullPayload)">
+            <batch:step name="selectNewerAccountStep" accept-expression="!(recordVars['accountInDatabase'] is NullPayload)">
                 <choice doc:name="Choice">
-                    <when expression="#[org.mule.templates.util.AccountDateComparator.isAfter(payload, recordVars['accountInB'])]">
-                        <expression-component doc:name="define Id in SalesForce Intance B"><![CDATA[payload['Id'] = recordVars['accountInB']['Id']]]></expression-component>
+                    <when expression="#[org.mule.templates.util.AccountDateComparator.isAfter(payload, recordVars['accountInDatabase'])]">
+                        <expression-component doc:name="define Id in SalesForce"><![CDATA[payload['Id'] = recordVars['accountInDatabase']['Id']]]></expression-component>
                     </when>
                     <otherwise>
                         <set-payload doc:name="set to null to skip this account" value="#[return null]"/>
@@ -58,7 +58,7 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
 	payload.put('NumberOfEmployees', intNumberOfEmployees);
 }]]></expression-component>
             </batch:step>
-            <batch:step name="updateAccountsInBStep" accept-expression="!(payload is NullPayload) &amp;&amp; !(recordVars['accountInB'] is NullPayload)">
+            <batch:step name="updateAccountsInDatabaseStep" accept-expression="!(payload is NullPayload) &amp;&amp; !(recordVars['accountInDatabase'] is NullPayload)">
                 <batch:commit size="200" doc:name="Batch Commit">
                     <db:update config-ref="Database" bulkMode="true" doc:name="update accunts in Database">
                         <db:parameterized-query><![CDATA[UPDATE Account SET
@@ -93,7 +93,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                     </db:update>
                 </batch:commit>
             </batch:step>
-            <batch:step name="insertAccountsToBStep" accept-expression="!(payload is NullPayload) &amp;&amp; recordVars['accountInB'] is NullPayload">
+            <batch:step name="insertAccountsToBStep" accept-expression="!(payload is NullPayload) &amp;&amp; recordVars['accountInDatabase'] is NullPayload">
                 <batch:commit size="200" doc:name="Batch Commit">
                     <db:insert config-ref="Database" bulkMode="true" doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
