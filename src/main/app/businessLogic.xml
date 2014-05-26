@@ -93,7 +93,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
                     </db:update>
                 </batch:commit>
             </batch:step>
-            <batch:step name="insertAccountsToBStep" accept-expression="!(payload is NullPayload) &amp;&amp; recordVars['accountInDatabase'] is NullPayload">
+            <batch:step name="insertAccountsToDatabaseStep" accept-expression="!(payload is NullPayload) &amp;&amp; recordVars['accountInDatabase'] is NullPayload">
                 <batch:commit size="200" doc:name="Batch Commit">
                     <db:insert config-ref="Database" bulkMode="true" doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
