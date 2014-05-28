@@ -50,8 +50,13 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
             </batch:step>
             <batch:step name="cleanupAccounts" accept-expression="!(payload is NullPayload)">
                 <data-mapper:transform config-ref="Account_To_Account" doc:name="Salesforce Account To Database Account"/>
-                <expression-component doc:name="remove field LastModifiedDate"><![CDATA[payload.remove('LastModifiedDate');]]></expression-component>
-                <expression-component doc:name="changing type of field NumberOfEmployees to int"><![CDATA[if (payload.get('NumberOfEmployees') == null) {
+
+                <expression-component doc:name="modify payload"><![CDATA[// remove field LastModifiedDate
+payload.remove('LastModifiedDate');
+
+
+// changing type of field NumberOfEmployees to int
+if (payload.get('NumberOfEmployees') == null) {
 	payload.remove('NumberOfEmployees') 
 } else {
 	int intNumberOfEmployees = Integer.parseInt(payload.get('NumberOfEmployees'));
