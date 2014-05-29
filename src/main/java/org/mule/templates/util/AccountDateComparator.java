@@ -13,7 +13,6 @@ import org.joda.time.format.ISODateTimeFormat;
  * 
  * It's assumed that these maps are well formed maps thus they both contain an entry with the expected key. Never the less validations are being done.
  * 
- * @author cesargarcia
  * @author martin.zdila
  */
 public class AccountDateComparator {
@@ -22,31 +21,31 @@ public class AccountDateComparator {
 	/**
 	 * Validate which account has the latest last referenced date.
 	 * 
-	 * @param accountA
-	 *            DB account map
-	 * @param accountB
-	 *            SFDC account map
-	 * @return true if the last activity date from accountA is after the one from accountB
+	 * @param salesforceAccount
+	 *             map
+	 * @param databaseAccount
+	 *            Database account map
+	 * @return true if the last activity date from salesforceAccount is after the one from databaseAccount
 	 */
-	public static boolean isAfter(Map<String, ?> accountA, Map<String, ?> accountB) {
-		Validate.notNull(accountA, "The account A must not be null");
-		Validate.notNull(accountB, "The account B must not be null");
+	public static boolean isAfter(Map<String, ?> salesforceAccount, Map<String, ?> databaseAccount) {
+		Validate.notNull(salesforceAccount, "Salesforce account must not be null");
+		Validate.notNull(databaseAccount, "Database account must not be null");
 		
-		Validate.isTrue(accountA.containsKey(LAST_MODIFIED_DATE), "The account A map must contain the key " + LAST_MODIFIED_DATE);
+		Validate.isTrue(salesforceAccount.containsKey(LAST_MODIFIED_DATE), "The Salesforce account map must contain the key " + LAST_MODIFIED_DATE);
 
-		if (accountB.get(LAST_MODIFIED_DATE) == null) {
+		if (databaseAccount.get(LAST_MODIFIED_DATE) == null) {
 			return true;
 		}
 		
 		DateTimeFormatter formatter = ISODateTimeFormat.dateTimeParser();
-		Object objectA = accountA.get(LAST_MODIFIED_DATE);
-		Validate.isTrue(objectA instanceof String, "LastModifiedDate of account A must be String");
-		DateTime LastModifiedDateOfA = formatter.parseDateTime((String) objectA);
+		Object maybeSalesforceDate = salesforceAccount.get(LAST_MODIFIED_DATE);
+		Validate.isTrue(maybeSalesforceDate instanceof String, "LastModifiedDate of Salesforce account must be String");
+		DateTime salesforceAccountLastModifiedDate = formatter.parseDateTime((String) maybeSalesforceDate);
 
-		Object objectB = accountB.get(LAST_MODIFIED_DATE);
-		Validate.isTrue(objectB instanceof Date, "LastModifiedDate of account B must be java.util.Date or subclass");
-		DateTime LastModifiedDateOfB = new DateTime((Date) objectB);
+		Object maybeDatabaseDate = databaseAccount.get(LAST_MODIFIED_DATE);
+		Validate.isTrue(maybeDatabaseDate instanceof Date, "LastModifiedDate of Database account must be java.util.Date or subclass");
+		DateTime databaseAccountLastModifiedDate = new DateTime((Date) maybeDatabaseDate);
 		
-		return LastModifiedDateOfA.isAfter(LastModifiedDateOfB);
+		return salesforceAccountLastModifiedDate.isAfter(databaseAccountLastModifiedDate);
 	}
 }
