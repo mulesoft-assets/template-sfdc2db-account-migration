@@ -95,6 +95,7 @@ if (payload.get('NumberOfEmployees') == null) {
 	Type = #[payload['Type']],
 	Website = #[payload['Website']]
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+
                     </db:update>
                 </batch:commit>
             </batch:step>
@@ -162,6 +163,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 	#[payload['Type']],
 	#[payload['Website']]
 )]]></db:parameterized-query>
+
                     </db:insert>
                 </batch:commit>
             </batch:step>

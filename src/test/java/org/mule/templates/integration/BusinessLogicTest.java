@@ -5,6 +5,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import junit.framework.Assert;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mule.MessageExchangePattern;
 import org.mule.api.MuleEvent;
@@ -22,6 +24,7 @@ import org.mule.api.config.MuleProperties;
 import org.mule.api.lifecycle.InitialisationException;
 import org.mule.processor.chain.SubflowInterceptingChainLifecycleWrapper;
 import org.mule.tck.junit4.FunctionalTestCase;
+import org.mule.templates.db.MySQLDbCreator;
 import org.mule.transport.NullPayload;
 import org.mule.util.UUID;
 
@@ -54,11 +57,22 @@ public class BusinessLogicTest extends FunctionalTestCase {
 
 	protected static final int TIMEOUT_SEC = 120;
 	protected static final String TEMPLATE_NAME = "account-migration";
+	
+	private static final String PATH_TO_TEST_PROPERTIES = "./src/test/resources/mule.test.properties";
+	private static final String PATH_TO_SQL_SCRIPT = "src/main/resources/account.sql";
+	private static final String DATABASE_NAME = "SFDC2DBAccountMigration" + new Long(new Date().getTime()).toString();
+	private static final MySQLDbCreator DBCREATOR = new MySQLDbCreator(DATABASE_NAME, PATH_TO_SQL_SCRIPT, PATH_TO_TEST_PROPERTIES);
 
 	protected SubflowInterceptingChainLifecycleWrapper retrieveAccountFromDatabaseFlow;
 	private List<Map<String, Object>> createdAccountsInSalesforce = new ArrayList<Map<String, Object>>();
 	private BatchTestHelper helper;
 
+	
+	@BeforeClass
+	public static void init() {
+		System.setProperty("db.jdbcUrl", DBCREATOR.getDatabaseUrlWithName());
+	}
+	
 	@Before
 	public void setUp() throws Exception {
 		helper = new BatchTestHelper(muleContext);
@@ -67,6 +81,7 @@ public class BusinessLogicTest extends FunctionalTestCase {
 		retrieveAccountFromDatabaseFlow = getSubFlow("retrieveAccountFromDatabaseFlow");
 		retrieveAccountFromDatabaseFlow.initialise();
 	
+		DBCREATOR.setUpDatabase();
 		createTestDataInSandBox();
 	}
 
@@ -74,6 +89,7 @@ public class BusinessLogicTest extends FunctionalTestCase {
 	public void tearDown() throws Exception {
 		deleteTestAccountsFromSandBoxA();
 		deleteTestAccountsFromSandBoxB();
+		DBCREATOR.tearDownDataBase();
 	}
 
 	@Test
