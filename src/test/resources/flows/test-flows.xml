@@ -56,7 +56,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 	#[payload['Description']],
 	#[payload['Fax']],
 	#[payload['Industry']],
-	CURRENT_TIMESTAMP,
+	#[payload['LastModifiedDate']],
 	#[payload['Name']],
 	#[payload['NumberOfEmployees']],
 	#[payload['Ownership']],

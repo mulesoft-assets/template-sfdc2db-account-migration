@@ -13,6 +13,10 @@ import java.util.Properties;
 
 import junit.framework.Assert;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -139,6 +143,8 @@ public class BusinessLogicTest extends FunctionalTestCase {
 		databaseAccount3.put(KEY_NAME, "Name_3_Database" + uniqueSuffix);
 		databaseAccount3.put(KEY_WEBSITE, "http://example.com");
 		databaseAccount3.put(KEY_PHONE, "112");
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
+		databaseAccount3.put("LastModifiedDate", new DateTime().toString(fmt));
 		List<Map<String, Object>> createdAccountInB = new ArrayList<Map<String, Object>>();
 		createdAccountInB.add(databaseAccount3);
 	
