@@ -10,7 +10,7 @@ xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
 xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 xmlns:json="http://www.mulesoft.org/schema/mule/json"
 xmlns:spring="http://www.springframework.org/schema/beans" 
-version="EE-3.5.0" 
+version="EE-3.5.1" 
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
@@ -33,22 +33,13 @@ http://www.mulesoft.org/schema/mule/ee/data-mapper http://www.mulesoft.org/schem
             <batch:step name="getAccountInDatabaseStep">
                 <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[recordVars['accountInDatabase']]" doc:name="store result in record var 'accountInDatabase'">
                     <db:select config-ref="Database" doc:name="query Account from Database">
-                        <db:parameterized-query><![CDATA[SELECT Id, Name, LastModifiedDate FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
+                        <db:parameterized-query><![CDATA[SELECT Id, Name FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
                     </db:select>
                 </enricher>
             </batch:step>
-            <batch:step name="selectNewerAccountStep" accept-expression="!(recordVars['accountInDatabase'] is NullPayload)">
-                <choice doc:name="Choice">
-                    <when expression="#[org.mule.templates.date.DateUtils.ISOStringDateToDateTime(payload['LastModifiedDate']).isAfter(org.mule.templates.date.DateUtils.dateToDateTime(recordVars['accountInDatabase']['LastModifiedDate']))]">
-                        <expression-component doc:name="define Id in SalesForce"><![CDATA[payload['Id'] = recordVars['accountInDatabase']['Id']]]></expression-component>
-                    </when>
-                    <otherwise>
-                        <set-payload doc:name="set to null to skip this account" value="#[return null]"/>
-                    </otherwise>
-                </choice>
-            </batch:step>
-            <batch:step name="cleanupAccounts" accept-expression="!(payload is NullPayload)">
+            <batch:step name="cleanupAccounts" >
+                <expression-component doc:name="define Id in SalesForce"><![CDATA[payload['Id'] = recordVars['accountInDatabase'] is NullPayload ? null : recordVars['accountInDatabase']['Id']]]></expression-component>
                 <data-mapper:transform config-ref="Account_To_Account" doc:name="Salesforce Account To Database Account"/>
 
                 <expression-component doc:name="modify payload"><![CDATA[// remove field LastModifiedDate
