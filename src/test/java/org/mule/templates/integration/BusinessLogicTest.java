@@ -101,6 +101,7 @@ public class BusinessLogicTest extends FunctionalTestCase {
 		DBCREATOR.tearDownDataBase();
 	}
 
+	@SuppressWarnings("deprecation")
 	@Test
 	public void testMainFlow() throws Exception {
 		runFlow("mainFlow");
