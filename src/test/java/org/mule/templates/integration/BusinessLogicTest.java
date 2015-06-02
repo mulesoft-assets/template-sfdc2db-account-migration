@@ -106,7 +106,6 @@ public class BusinessLogicTest extends FunctionalTestCase {
 		DBCREATOR.tearDownDataBase();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Test
 	public void testMainFlow() throws Exception {
 		runFlow("mainFlow");
@@ -149,19 +148,17 @@ public class BusinessLogicTest extends FunctionalTestCase {
 		
 		final String uniqueSuffix = "_" + TEMPLATE_NAME + "_" + UUID.getUUID();
 		
-		final Map<String, Object> databaseAccount3 = new HashMap<String, Object>();
-		databaseAccount3.put(KEY_ID, UUID.getUUID().toString());
-		databaseAccount3.put(KEY_NAME, "Name_3_Database" + uniqueSuffix);
-		databaseAccount3.put(KEY_WEBSITE, "http://example.com");
-		databaseAccount3.put(KEY_PHONE, "112");
+		final Map<String, Object> databaseAccount = new HashMap<String, Object>();
+		databaseAccount.put(KEY_ID, UUID.getUUID().toString());
+		databaseAccount.put(KEY_NAME, "Name_3_Database" + uniqueSuffix);
+		databaseAccount.put(KEY_WEBSITE, "http://example.com");
+		databaseAccount.put(KEY_PHONE, "112");
 		final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
-		databaseAccount3.put("LastModifiedDate", new DateTime().toString(fmt));
-		final List<Map<String, Object>> createdAccountInB = new ArrayList<Map<String, Object>>();
-		createdAccountInB.add(databaseAccount3);
-	
+		databaseAccount.put("LastModifiedDate", new DateTime().toString(fmt));
+		
 		final SubflowInterceptingChainLifecycleWrapper createAccountInDatabaseFlow = getSubFlow("createAccountFlowDatabase");
 		createAccountInDatabaseFlow.initialise();
-		createAccountInDatabaseFlow.process(getTestEvent(createdAccountInB, MessageExchangePattern.REQUEST_RESPONSE));
+		createAccountInDatabaseFlow.process(getTestEvent(databaseAccount, MessageExchangePattern.REQUEST_RESPONSE));
 	
 		Thread.sleep(1001); // this is here to prevent equal LastModifiedDate
 		
@@ -179,7 +176,7 @@ public class BusinessLogicTest extends FunctionalTestCase {
 				
 		// This account should be synced (update)
 		final Map<String, Object> salesforceAccount1 = new HashMap<String, Object>();
-		salesforceAccount1.put(KEY_NAME,  databaseAccount3.get(KEY_NAME));
+		salesforceAccount1.put(KEY_NAME,  databaseAccount.get(KEY_NAME));
 		//account_1_Salesforce.put(KEY_ID, UUID.getUUID().toString());
 		salesforceAccount1.put(KEY_WEBSITE, "http://example.edu");
 		salesforceAccount1.put(KEY_PHONE, "911");
