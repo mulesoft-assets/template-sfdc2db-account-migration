@@ -166,6 +166,7 @@ Mule Studio provides you with really easy way to deploy your Template directly t
 In order to use this Mule Anypoint Template you need to configure properties (Credentials, configurations, etc.) either in properties file or in CloudHub as Environment Variables. Detail list with examples:
 ### Application configuration
 + http.port `9090` 
++ page.size `1000`
 
 #### Salesforce Connector configuration
 + sfdc.username `bob.dylan@org`
@@ -175,6 +176,12 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 
 #### Database Connector configuration
 + db.jdbcUrl `jdbc:mysql://localhost:3306/mule?user=mule&password=mule`
+
+#### SMTP Services configuration
++ smtp.host `smtp.gmail.com`
++ smtp.port `587`
++ smtp.user `email%40example.com`
++ smtp.password `password`
 
 #### E-mail Details
 + mail.from `batch.migrateaccounts.migration%40mulesoft.com`
@@ -225,6 +232,7 @@ This Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.org/docume
 
 ### Inbound Flow
 **HTTP Inbound Endpoint** - Start Report Generation
+
 + `${http.port}` is set as a property to be defined either on a property file or in CloudHub environment variables.
 + The path configured by default is `migrateaccounts` and you are free to change for the one you prefer.
 + The host name for all endpoints in your CloudHub configuration should be defined as `localhost`. CloudHub will then route requests from your application domain URL to the endpoint.
