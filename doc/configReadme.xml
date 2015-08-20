@@ -56,6 +56,7 @@ After this, to trigger the use case you just need to hit the local http endpoint
 		<section id="application_configuration">
 		<![CDATA[
 + http.port `9090` 
++ page.size `1000`
 
 #### Salesforce Connector configuration
 + sfdc.username `bob.dylan@org`
@@ -65,6 +66,12 @@ After this, to trigger the use case you just need to hit the local http endpoint
 
 #### Database Connector configuration
 + db.jdbcUrl `jdbc:mysql://localhost:3306/mule?user=mule&password=mule`
+
+#### SMTP Services configuration
++ smtp.host `smtp.gmail.com`
++ smtp.port `587`
++ smtp.user `email%40example.com`
++ smtp.password `password`
 
 #### E-mail Details
 + mail.from `batch.migrateaccounts.migration%40mulesoft.com`
@@ -92,6 +99,7 @@ This Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.org/docume
 
 $H$H# Inbound Flow
 **HTTP Inbound Endpoint** - Start Report Generation
+
 + `${http.port}` is set as a property to be defined either on a property file or in CloudHub environment variables.
 + The path configured by default is `migrateaccounts` and you are free to change for the one you prefer.
 + The host name for all endpoints in your CloudHub configuration should be defined as `localhost`. CloudHub will then route requests from your application domain URL to the endpoint.
