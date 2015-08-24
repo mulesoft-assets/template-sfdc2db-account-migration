@@ -58,6 +58,9 @@ public class BusinessLogicTest extends FunctionalTestCase {
 
 	private static final Logger LOG = LogManager.getLogger(BusinessLogicTest.class);
 	
+	private static final String HTTP_PORT = "9090";
+	private static final String PAGE_SIZE = "1000";
+	
 	private static final String KEY_ID = "Id";
 	private static final String KEY_NAME = "Name";
 	private static final String KEY_WEBSITE = "Website";
@@ -85,6 +88,8 @@ public class BusinessLogicTest extends FunctionalTestCase {
 	@BeforeClass
 	public static void init() {
 		System.setProperty("db.jdbcUrl", DBCREATOR.getDatabaseUrlWithName());
+		System.setProperty("http.port", HTTP_PORT);
+		System.setProperty("page.size", PAGE_SIZE);
 	}
 	
 	@Before
