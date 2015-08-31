@@ -36,18 +36,18 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
                     </db:select>
                 </enricher>
             </batch:step>
-            <batch:step name="transformData" >
-                <dw:transform-message doc:name="Salesforce Account To Database Account">
-                    <dw:set-payload><![CDATA[%dw 1.0
-%output application/java
----
-payload
-- "LastModifiedDate"
-++ (NumberOfEmployees: payload.NumberOfEmployees as :number when payload.NumberOfEmployees != null otherwise null)]]></dw:set-payload>
-                </dw:transform-message>
-            </batch:step>
+
             <batch:step name="updateAccountsInDatabaseStep" accept-expression="payload !=null &amp;&amp; payload.Id != null">
                 <batch:commit size="200" doc:name="Batch Commit">
+                    <dw:transform-message doc:name="Salesforce Account To Database Account">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map $
+- "LastModifiedDate"
+++ (NumberOfEmployees: $.NumberOfEmployees as :number when $.NumberOfEmployees != null otherwise null)
+]]></dw:set-payload>
+                    </dw:transform-message>
                     <db:update config-ref="Database" bulkMode="true" doc:name="update accunts in Database">
                         <db:parameterized-query><![CDATA[UPDATE Account SET
 	AccountNumber = #[payload['AccountNumber']],
@@ -85,6 +85,14 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
             </batch:step>
             <batch:step name="insertAccountsToDatabaseStep" accept-expression="payload !=null &amp;&amp; payload.Id == null">
                 <batch:commit size="200" doc:name="Batch Commit">
+                 <dw:transform-message doc:name="Salesforce Account To Database Account">
+                        <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+payload map $
+- "LastModifiedDate"
+++ (NumberOfEmployees: $.NumberOfEmployees as :number when $.NumberOfEmployees != null otherwise null)]]></dw:set-payload>
+                    </dw:transform-message>
                     <db:insert config-ref="Database" bulkMode="true" doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
 	Id,
