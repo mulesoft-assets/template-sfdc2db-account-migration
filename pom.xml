@@ -32,8 +32,10 @@
 							<groupId>org.mule.modules</groupId>
 							<artifactId>mule-module-sfdc</artifactId>
 						</inclusion>
+					</inclusions>
+				</configuration>
 			</plugin>
-    </build>
+		    </build>
 
 	<dependencies>
 		<dependency>
@@ -45,7 +47,7 @@
 		<dependency>
 			<groupId>org.mule.modules</groupId>
 			<artifactId>mule-module-sfdc</artifactId>
-			<version>7.0.0-SNAPSHOT</version>
+			<version>${sfdc.version}</version>
 		</dependency>
 	<dependency>
             <groupId>org.mule.modules</groupId>
@@ -65,8 +67,7 @@
             <version>${mule.version}</version>
             <scope>provided</scope>
         </dependency>
-    </dependencies>
-
+   
 	<repositories>
 		<repository>
 			<id>mulesoft-releases</id>
