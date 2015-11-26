@@ -9,7 +9,7 @@ xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
 xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp"
 xmlns:json="http://www.mulesoft.org/schema/mule/json"
 xmlns:spring="http://www.springframework.org/schema/beans" 
-version="EE-3.7.1" 
+ 
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
@@ -28,26 +28,31 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
         </batch:input> 
         <batch:process-records>
             <batch:step name="getAccountInDatabaseStep">
+
                 <enricher source="#[payload.isEmpty() ? null : payload[0].Id]" target="#[payload.Id]" doc:name="store result Id in payload">
                     <db:select config-ref="Database" doc:name="query Account from Database">
                         <db:parameterized-query><![CDATA[SELECT Id FROM Account WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
 
+
                     </db:select>
                 </enricher>
+
             </batch:step>
 
             <batch:step name="updateAccountsInDatabaseStep" accept-expression="payload !=null &amp;&amp; payload.Id != null">
+
                 <batch:commit size="200" doc:name="Batch Commit">
                     <dw:transform-message doc:name="Salesforce Account To Database Account">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-payload map $
+payload map ($
 - "LastModifiedDate"
-++ (NumberOfEmployees: $.NumberOfEmployees as :number when $.NumberOfEmployees != null otherwise null)
+++ (NumberOfEmployees: $.NumberOfEmployees as :number when ($.NumberOfEmployees != null) otherwise null))
 ]]></dw:set-payload>
                     </dw:transform-message>
+
                     <db:update config-ref="Database" bulkMode="true" doc:name="update accunts in Database">
                         <db:parameterized-query><![CDATA[UPDATE Account SET
 	AccountNumber = #[payload['AccountNumber']],
@@ -80,19 +85,22 @@ payload map $
 WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 
 
+
                     </db:update>
                 </batch:commit>
             </batch:step>
             <batch:step name="insertAccountsToDatabaseStep" accept-expression="payload !=null &amp;&amp; payload.Id == null">
+
                 <batch:commit size="200" doc:name="Batch Commit">
                  <dw:transform-message doc:name="Salesforce Account To Database Account">
                         <dw:set-payload><![CDATA[%dw 1.0
 %output application/java
 ---
-payload map $
+payload map ($
 - "LastModifiedDate"
-++ (NumberOfEmployees: $.NumberOfEmployees as :number when $.NumberOfEmployees != null otherwise null)]]></dw:set-payload>
+++ (NumberOfEmployees: $.NumberOfEmployees as :number when ($.NumberOfEmployees != null) otherwise null))]]></dw:set-payload>
                     </dw:transform-message>
+
                     <db:insert config-ref="Database" bulkMode="true" doc:name="insert accounts to Database">
                         <db:parameterized-query><![CDATA[INSERT INTO Account (
 	Id,
