@@ -49,7 +49,7 @@ http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee
 ---
 payload map ($
 - "LastModifiedDate"
-++ (NumberOfEmployees: $.NumberOfEmployees as :number when ($.NumberOfEmployees != null) otherwise null))
+++ (NumberOfEmployees: $.NumberOfEmployees as :number { class: "java.lang.Integer" } when ($.NumberOfEmployees != null) otherwise null))
 ]]></dw:set-payload>
                     </dw:transform-message>
 
@@ -98,7 +98,7 @@ WHERE Name = #[payload['Name']]]]></db:parameterized-query>
 ---
 payload map ($
 - "LastModifiedDate"
-++ (NumberOfEmployees: $.NumberOfEmployees as :number when ($.NumberOfEmployees != null) otherwise null))]]></dw:set-payload>
+++ (NumberOfEmployees: $.NumberOfEmployees as :number { class: "java.lang.Integer" } when ($.NumberOfEmployees != null) otherwise null))]]></dw:set-payload>
                     </dw:transform-message>
 
                     <db:insert config-ref="Database" bulkMode="true" doc:name="insert accounts to Database">
