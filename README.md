@@ -36,6 +36,8 @@ During the Input stage the Template will go to the Salesforce and query all the 
 The last step of the Process stage will group the accounts and create them in Database.
 Finally during the On Complete stage the Template will both output statistics data into the console and send a notification email with the results of the batch execution.
 
+The template is covered by the integration tests using the [MUnit](https://docs.mulesoft.com/mule-user-guide/v/3.7/munit). To be able to run the tests, see the example configuration of the test property file.
+
 # Considerations <a name="considerations"/>
 
 **Note:** This particular Anypoint Template illustrate the migration use case between Salesforce and a Database, thus it requires a Database instance to work.
@@ -47,7 +49,7 @@ This template is customized for MySQL. To use it with different SQL implementati
 
 * update SQL script dialect to desired one
 * replace MySQL driver library dependency to desired one in [POM](pom.xml)
-* replace attribute `driverClassName` of `db:generic-config` element with class name of desired JDBC driver in [src/main/app/config.xml](../master/src/main/app/config.xml)
+* set property `db.driver` used in `db:generic-config` element with class name of desired JDBC driver in [src/main/app/config.xml](../master/src/main/app/config.xml)
 * update JDBC URL in `mule.*.properties` file
 
 ## DB Considerations <a name="dbconsiderations"/>
@@ -119,7 +121,7 @@ In any of the ways you would like to run this Template this is an example of the
 <h1>Batch Process initiated</h1>
 <b>ID:</b>6eea3cc6-7c96-11e3-9a65-55f9f3ae584e<br/>
 <b>Records to Be Processed: </b>9<br/>
-<b>Start execution on: </b>Mon Jan 13 18:05:33 GMT-03:00 2014
+<b>Start execution on: </b>Fri Dec 04 18:05:33 GMT-03:00 2015
 </pre>
 
 ## Running on premise <a name="runonopremise"/>
@@ -180,6 +182,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 
 #### Database Connector configuration
 + db.jdbcUrl `jdbc:mysql://localhost:3306/mule?user=mule&password=mule`
++ db.driver `com.mysql.jdbc.Driver`
 
 #### SMTP Services configuration
 + smtp.host `smtp.gmail.com`
@@ -188,6 +191,39 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + smtp.password `password`
 
 #### E-mail Details
++ mail.from `batch.migrateaccounts.migration%40mulesoft.com`
++ mail.to `cesar.garcia@mulesoft.com`
++ mail.subject `Batch Job Finished Report`
+
+### MUnit configuration
+
+Application Configuration
+
++ http.port `9090` 
++ page.size `1000`
+
+SalesForce Connector configuration for company A
+
++ sfdc.username `bob.dylan@org`
++ sfdc.password `DylanPassword123`
++ sfdc.securityToken `avsfwCUl7apQs56Xq2AKi3X`
++ sfdc.url `https://login.salesforce.com/services/Soap/u/32.0`
+
+Database Connector configuration for company B
+
+db.jdbcUrl=jdbc:h2:mem:sfdc2db-account-migration;AUTOCOMMIT=ON;MODE=MySQL;USER=;PASSWORD=
+db.driver=org.h2.Driver
+db.name=sfdc2db-account-migration
+
+SMTP Services configuration
+
++ smtp.host `smtp.gmail.com`
++ smtp.port `587`
++ smtp.user `email%40example.com`
++ smtp.password `password`
+
+Mail details
+
 + mail.from `batch.migrateaccounts.migration%40mulesoft.com`
 + mail.to `cesar.garcia@mulesoft.com`
 + mail.subject `Batch Job Finished Report`
@@ -232,12 +268,12 @@ This flow has Exception Strategy that basically consists on invoking the *defaul
 
 ## endpoints.xml<a name="endpointsxml"/>
 This is the file where you will found the inbound and outbound sides of your integration app.
-This Template has only an [HTTP Inbound Endpoint](http://www.mulesoft.org/documentation/display/current/HTTP+Endpoint+Reference) as the way to trigger the use case.
+This Template has only an [HTTP Listener Connector](http://www.mulesoft.org/documentation/display/current/HTTP+Listener+Connector) as the way to trigger the use case.
 
 ### Inbound Flow
-**HTTP Inbound Endpoint** - Start Report Generation
+**HTTP Listener Connector** - Start Report Generation
 
-+ `${http.port}` is set as a property to be defined either on a property file or in CloudHub environment variables.
++ `${http.port}` is set as a property to be defined either in a property file or in CloudHub environment variables.
 + The path configured by default is `migrateaccounts` and you are free to change for the one you prefer.
 + The host name for all endpoints in your CloudHub configuration should be defined as `localhost`. CloudHub will then route requests from your application domain URL to the endpoint.
 + The endpoint is configured as a *request-response* since as a result of calling it the response will be the total of Accounts synced and filtered by the criteria specified.

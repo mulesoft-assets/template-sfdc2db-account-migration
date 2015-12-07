@@ -1,5 +1,5 @@
 CREATE TABLE `Account` (
-  `Id` varchar(255) NOT NULL,
+  `Id` int NOT NULL AUTO_INCREMENT,
   `AccountNumber` varchar(255) DEFAULT NULL,
   `AccountSource` varchar(255) DEFAULT NULL,
   `AnnualRevenue` varchar(255) DEFAULT NULL,

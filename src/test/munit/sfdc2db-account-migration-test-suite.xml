@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:synchronize="http://www.mulesoft.org/schema/mule/synchronize" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:spring="http://www.springframework.org/schema/beans"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:core="http://www.mulesoft.org/schema/mule/core"
+	xmlns:dbserver="http://www.mulesoft.org/schema/mule/dbserver"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-current.xsd
+http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/dbserver http://www.mulesoft.org/schema/mule/dbserver/current/mule-dbserver.xsd
+http://www.mulesoft.org/schema/mule/synchronize http://www.mulesoft.org/schema/mule/synchronize/current/mule-synchronize.xsd">
+    
+    <context:property-placeholder location="mule.test.properties"/>
+    <munit:config name="munit" doc:name="MUnit configuration"  mock-inbounds="false" mock-connectors="false"/>
+
+    <spring:beans>
+        <spring:import resource="classpath:businessLogic.xml"/>
+        <spring:import resource="classpath:config.xml"/>
+        <spring:import resource="classpath:errorHandling.xml"/>
+    </spring:beans>
+    
+    <dbserver:config name="test-db" database="${db.name}" sqlFile="test-account.sql" doc:name="Test DB Server"/>
+    
+    <munit:before-suite name="BeforeSuite" description="before suite actions">
+        <dbserver:start-db-server config-ref="test-db" doc:name="Start DB Server"/>
+    </munit:before-suite>
+    <munit:after-suite name="AfterSuite" description="After suite actions">
+        <dbserver:stop-db-server config-ref="test-db" doc:name="Stop DB Server"/>
+    </munit:after-suite>
+    <munit:before-test name="BeforeTest" description="Before tests actions">
+        <dw:transform-message doc:name="generate timestamp">
+            <dw:set-variable variableName="timestamp"><![CDATA[%dw 1.0
+%output application/java
+---
+now as :string {format: 'yyMMddHHmmss'}]]></dw:set-variable>
+        </dw:transform-message>
+    </munit:before-test>
+    
+    <sub-flow name="insertToDatabase">
+        <logger message="Insert account with name 'Name_1_Database_#[flowVars.timestamp]' to DB" level="INFO" doc:name="insert account to database"/>
+        <dbserver:execute config-ref="test-db" sql="INSERT INTO Account (Name, Website, Phone, NumberOfEmployees, Industry) VALUES ('Name_1_Database_#[flowVars.timestamp]', 'Website', 'Phone', 0, 'Industry')" doc:name="insert test account to DB"/>
+        <logger message="Insert test account to DB result: #[payload]" level="INFO" doc:name="log result"/>
+    </sub-flow>
+    
+    <sub-flow name="getFromDatabase">
+        <logger message="get account from database..." level="INFO" doc:name="get account from database"/>
+        <enricher source="#[payload.isEmpty() ? NullPayload.getInstance() : payload[0]]" target="#[payload]" doc:name="Message Enricher">
+            <dbserver:execute-query config-ref="test-db" sql="SELECT Name, Website, Phone, NumberOfEmployees, Industry FROM Account WHERE Name = '#[flowVars.expectedPayload.NAME]'" doc:name="query account from database"/>
+        </enricher>
+
+        <logger message="Query user from database result : #[payload]" level="INFO" doc:name="log result"/>
+    </sub-flow>
+    
+    <munit:test name="InsertTest" description="Test">
+        <logger message="Testing Insert" level="INFO" doc:name="log Testing Insert"/>
+        <dw:transform-message doc:name="prepare Salesforce Account">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+[{
+		Name: "Name_0_Salesforce_" ++ flowVars.timestamp,
+		Website: "http://acme.org",
+		Phone: "123",
+		NumberOfEmployees: 6000,
+		Industry: "Education"
+}]]]></dw:set-payload>
+			<dw:set-variable variableName="expectedPayload"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+		INDUSTRY: "Education",
+		PHONE: "123",
+		NUMBEROFEMPLOYEES: "6000",
+		WEBSITE: "http://acme.org",
+		NAME: "Name_0_Salesforce_" ++ flowVars.timestamp		
+}]]></dw:set-variable>
+        </dw:transform-message>
+
+        <synchronize:run-and-wait timeout="10000" doc:name="Synchronize">
+            <batch:execute name="migrateAccountsBatch" doc:name="Run Batch migrateAccountsBatch"/>
+        </synchronize:run-and-wait>
+        <flow-ref name="getFromDatabase" doc:name="call getFromDatabase"/>
+        <munit:assert-not-null doc:name="Assert Not Null Payload" message="The Account '#[flowVars.expectedPayload.NAME]' should have been sync but is null"/>
+
+        <munit:assert-payload-equals expectedValue="#[flowVars.expectedPayload]" doc:name="Assert Payload" message="The Account '#[flowVars.expectedPayload.NAME]' should have been sync"/>
+    </munit:test>
+    
+    <munit:test name="UpdateTest" description="Test" >
+        <logger message="Testing Update" level="INFO" doc:name="log Testing Update"/>
+        <flow-ref name="insertToDatabase" doc:name="call insertToDatabase"/>
+        <dw:transform-message doc:name="prepare Salesforce Account" metadata:id="659a82c2-6c7a-4a64-be43-85c11cb2d251">
+            <dw:set-payload><![CDATA[%dw 1.0
+%output application/java
+---
+[{
+	Name: "Name_1_Database_" ++ flowVars.timestamp,
+	Website: "http://example.edu",
+	Phone: "911",
+	NumberOfEmployees: 7100,
+	Industry: "Government"
+}]]]></dw:set-payload>
+            <dw:set-variable variableName="expectedPayload"><![CDATA[%dw 1.0
+%output application/java
+---
+{
+	NAME: "Name_1_Database_" ++ flowVars.timestamp,
+	WEBSITE: "http://example.edu",
+	PHONE: "911",
+	NUMBEROFEMPLOYEES: "7100",
+	INDUSTRY: "Government"
+}]]></dw:set-variable>
+        </dw:transform-message>
+        <synchronize:run-and-wait timeout="10000" doc:name="Synchronize">
+            <batch:execute name="migrateAccountsBatch" doc:name="Run Batch migrateAccountsBatch"/>
+        </synchronize:run-and-wait>
+        <flow-ref name="getFromDatabase" doc:name="call getFromDatabase"/>
+        <munit:assert-not-null doc:name="Assert Not Null Payload" message="The Account '#[flowVars.expectedPayload.NAME]' should have been sync but is null"/>
+        <munit:assert-payload-equals expectedValue="#[flowVars.expectedPayload]" doc:name="Assert Payload" message="The Account '#[flowVars.expectedPayload.NAME]' should have been sync"/>
+    </munit:test>
+
+</mule>
