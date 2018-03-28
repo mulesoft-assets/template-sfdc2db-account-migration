@@ -112,9 +112,6 @@ output application/java
 		<salesforce:delete doc:name="Delete test accounts in SFDC" doc:id="788956ca-8ada-49c2-a3f7-7eb367e735b4" config-ref="Salesforce_Sfdc_config">
 				<salesforce:delete-ids><![CDATA[#[vars.sfdcAIds]]]></salesforce:delete-ids>
 			</salesforce:delete>
-		<db:delete doc:name="Delete TestAccount3 from DB" doc:id="8f0cad68-25d4-41f7-94ec-0de608021583" config-ref="Database_Config">
-			<db:sql >DELETE FROM Account WHERE Name = 'TestAccount3'</db:sql>
-		</db:delete>
 	</munit:after-test>
 
 
