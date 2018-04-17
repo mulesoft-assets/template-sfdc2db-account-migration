@@ -32,10 +32,10 @@ This Template should serve as a foundation for the process of migrating accounts
 
 As implemented, this Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
 
-The batch job is divided in Process and On Complete stages.
+The batch job is divided in *Process* and *On Complete* stages.
 Migration process starts from fetching all the existing Accounts that match the filter criteria from Salesforce.
-On Process stage matched accounts will be grouped and inserted or updated in Database.
-Finally during the On Complete stage the Template will both output statistics data into the console and send a notification email with the results of the batch execution.
+On *Process* stage matched accounts will be grouped and inserted or updated in Database.
+Finally during the *On Complete* stage the Template will both output statistics data into the console and send a notification email with the results of the batch execution.
 
 The template is covered by the integration tests using the [MUnit](https://docs.mulesoft.com/munit). To be able to run the tests, see the example configuration of the test property file.
 
@@ -180,7 +180,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + db.port `3306`
 + db.user `joan.baez`
 + db.password `JoanBaez456`
-+ db.databasename `template-sfdc2db-user-broadcast`
++ db.databasename `template-sfdc2db-account-migration`
 
 **SMTP Services configuration**
 + smtp.host `smtp.gmail.com`
