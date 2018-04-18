@@ -196,11 +196,11 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 # API Calls <a name="apicalls"/>
 SalesForce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. The Anypoint Template calls to the API can be calculated using the formula:
 
-***X + X / {page.size}***
+***X + X / ${page.size}***
 
 Being ***X*** the number of Accounts to be synchronized on each run.
 
-The division by ***{page.size}*** is because, by default, Accounts are gathered in groups of {page.size} for each Upsert API Call in the commit step.
+The division by ***${page.size}*** is because, by default, Accounts are gathered in groups of ${page.size} for each Upsert API Call in the commit step.
 
 For instance if 10 records are fetched from origin instance, then 20 api calls will be made (10 + 10).
 
@@ -227,7 +227,6 @@ In the visual editor they can be found on the *Global Element* tab.
 ## businessLogic.xml<a name="businesslogicxml"/>
 Functional aspect of the Template is implemented on this XML, directed by one flow responsible of excecuting the logic.
 For the purpose of this particular Template the *mainFlow* just executes a [Batch Job](http://www.mulesoft.org/documentation/display/current/Batch+Processing), which handles all the logic of it.
-This flow has Exception Handling that basically consists on invoking the *errorHandlingFlow* defined in *errorHandling.xml* file.
 
 
 
