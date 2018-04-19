@@ -26,16 +26,16 @@ Note that using this template is subject to the conditions of this [License Agre
 Please review the terms of the license before downloading and using this template. In short, you are allowed to use the template for free with Mule ESB Enterprise Edition, CloudHub, or as a trial in Anypoint Studio.
 
 # Use Case <a name="usecase"/>
-I want to synchronize accounts from Salesforce to Database.
+I want to migrate accounts from Salesforce to Database. 
 
-This Template should serve as a foundation for the process of migrating accounts from Salesforce to Database, being able to specify filtering criteria and desired behavior when an account already exists in the Database.
+This Template should serve as a foundation for the process of migrating accounts from Salesforce to Database, being able to specify filtering criteria and desired behavior when an account already exists in the Database. 
 
-As implemented, this Template leverage the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing).
+As implemented, this Template leverages the [Batch Module](http://www.mulesoft.org/documentation/display/current/Batch+Processing). 
 
-The batch job is divided in *Process* and *On Complete* stages.
-Migration process starts from fetching all the existing Accounts that match the filter criteria from Salesforce.
-On *Process* stage matched accounts will be grouped and inserted or updated in Database.
-Finally during the *On Complete* stage the Template will both output statistics data into the console and send a notification email with the results of the batch execution.
+The batch job is divided in *Process* and *On Complete* stages. 
+Migration process starts from fetching all the existing Accounts that match the filter criteria from Salesforce. 
+On *Process* stage matched accounts will be grouped and inserted or updated in Database. 
+Finally during the *On Complete* stage the Template will both output statistics data into the console and send a notification email with the results of the batch execution. 
 
 The template is covered by the integration tests using the [MUnit](https://docs.mulesoft.com/munit). To be able to run the tests, see the example configuration of the test property file.
 
@@ -131,7 +131,7 @@ First thing to know if you are a newcomer to Mule is where to get the tools.
 
 
 ### Importing an Anypoint Template into Studio
-Mule Studio offers several ways to import a project into the workspace, for instance:
+Mule Studio offers several ways to import a project into the workspace, for instance: 
 
 + Anypoint Studio Project from File System
 + Packaged mule application (.jar)
@@ -144,13 +144,13 @@ Once you have imported you Anypoint Template into Anypoint Studio you need to fo
 
 + Locate the properties file `mule.dev.properties`, in src/main/resources
 + Complete all the properties required as per the examples in the section [Properties to be configured](#propertiestobeconfigured)
-+ Once that is done, right click on you Anypoint Template project folder
++ Once that is done, right click on you Anypoint Template project folder 
 + Hover you mouse over `"Run as"`
 + Click on  `"Mule Application"`
 
 
 ### Running on Mule ESB stand alone <a name="runonmuleesbstandalone"/>
-Complete all properties in one of the property files, for example in [mule.prod.properties](../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`.
+Complete all properties in one of the property files, for example in [mule.prod.properties] (../master/src/main/resources/mule.prod.properties) and run your app with the corresponding environment variable to use it. To follow the example, this will be `mule.env=prod`. 
 After this, to trigger the use case you just need to hit the local http endpoint with the port you configured in your file. If this is, for instance, `9090` then you should hit: `http://localhost:9090/migrateaccounts` and this will create a CSV report and send it to the mails set.
 
 ## Running on CloudHub <a name="runoncloudhub"/>
@@ -194,7 +194,7 @@ In order to use this Mule Anypoint Template you need to configure properties (Cr
 + mail.subject `Batch Job Finished Report`
 
 # API Calls <a name="apicalls"/>
-SalesForce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. The Anypoint Template calls to the API can be calculated using the formula:
+Salesforce imposes limits on the number of API Calls that can be made. Therefore calculating this amount may be an important factor to consider. The Anypoint Template calls to the API can be calculated using the formula:
 
 ***X + X / ${page.size}***
 
@@ -226,7 +226,7 @@ In the visual editor they can be found on the *Global Element* tab.
 
 ## businessLogic.xml<a name="businesslogicxml"/>
 Functional aspect of the Template is implemented on this XML, directed by one flow responsible of excecuting the logic.
-For the purpose of this particular Template the *mainFlow* just executes a [Batch Job](http://www.mulesoft.org/documentation/display/current/Batch+Processing), which handles all the logic of it.
+For the purpose of this particular Template the *mainFlow* uses a [Batch Job](http://www.mulesoft.org/documentation/display/current/Batch+Processing), which handles all the logic of it.
 
 
 
@@ -245,5 +245,8 @@ This Template has only an [HTTP Listener Connector](http://www.mulesoft.org/docu
 
 
 ## errorHandling.xml<a name="errorhandlingxml"/>
-This is the right place to handle how your integration will react depending on the different exceptions.
+This is the right place to handle how your integration will react depending on the different exceptions. 
 This file holds a [Error Handling](http://www.mulesoft.org/documentation/display/current/Error+Handling) that is referenced by the main flow in the business logic.
+
+
+
